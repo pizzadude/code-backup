@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+SCRIPTNAME=$(basename "$0")
+CONFIG_FILE="${HOME}/.config/imgurrc"
+DATA_FILE="/tmp/$SCRIPTNAME"
+
+if [ "$#" -ne 1 ]; then
+    kdialog --title imgur --error "only one file can be uploaded" &>/dev/null
+    exit 1
+elif [ ! -s "$CONFIG_FILE" ]; then
+    kdialog --title imgur --error "the service is not set up properly" &>/dev/null
+    exit 1
+fi
+
+[ "$(wc -l "$CONFIG_FILE" | cut -d' ' -f1)" -eq 1 ] \
+    && header="Client-ID $(sed -n 1p "$CONFIG_FILE")" \
+    || header="Bearer $(sed -n 4p "$CONFIG_FILE")"
+
+res=$(curl --silent -X POST -H "Authorization: $header" -F "image=@$1" https://api.imgur.com/3/image)
+
+url=$(echo "$res" | jq -r '.data.link')
+delete_url="https://imgur.com/delete/$(echo "$res" | jq -r '.data.deletehash')"
+
+{
+    printf "%-17s %s\n" "url:" "$url"
+    printf "%-13s %s\n" "delete url:" "$delete_url"
+} > "$DATA_FILE"
+
+kdialog --geometry 450 --title imgur --textbox "$DATA_FILE" &>/dev/null

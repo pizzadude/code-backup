@@ -1,0 +1,14 @@
+[Desktop Entry]
+Type=Service
+MimeType=image/*
+X-KDE-ServiceTypes=KonqPopupMenu/Plugin
+Actions=Upload
+X-KDE-Priority=TopLevel
+X-KDE-Submenu=Imgur
+
+[Desktop Action Upload]
+Name=Upload
+Name[de]=Hochladen
+Name[en]=Upload
+Icon=kipi-imgur
+Exec=dsm-imgur %u
